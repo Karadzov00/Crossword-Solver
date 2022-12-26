@@ -24,8 +24,7 @@ class Backtracking(Algorithm):
 
     def get_algorithm_steps(self, tiles, variables, words):
         moves_list = []
-        domains = {var: [word for word in words] for var in variables}
-        solution = []
+
 
         rows = len(tiles)
         cols = len(tiles[0])
@@ -46,6 +45,9 @@ class Backtracking(Algorithm):
 
         self.backtracking(matrix, currentDomains, keys, 0, variables_copy, backwardsFlag, words, moves_list)
 
+        domains = {var: [word for word in words] for var in variables}
+        solution = []
+
         for move in moves_list:
             solution.append([move[0], move[1], domains])
         return solution
@@ -64,8 +66,9 @@ class Backtracking(Algorithm):
                 print(direction)
                 position = int(curVar[:-1])
                 print(position)
-                col = int(position / len(matrix[0]))
-                row = int(position / len(matrix))
+                numCols = len(matrix[0])
+                row = int(position / len(matrix[0]))
+                col = int(position % len(matrix[0]))
                 print(col)
                 print(row)
                 wordLen = variables[curVar]
@@ -85,8 +88,9 @@ class Backtracking(Algorithm):
 
             else:
                 curDomains[curVar] = copy.deepcopy(words)
-                moves_list.append([curVar, 'none'])
+                moves_list.append([curVar, None])
                 backwardsFlag = True
+                level -= 1
         else:
             if len(curDomains[curVar]) > 1:
                 curDomains[curVar].pop(0)
@@ -96,7 +100,7 @@ class Backtracking(Algorithm):
                 position = int(curVar[:-1])
                 print(position)
                 col = int(position / len(matrix[0]))
-                row = int(position / len(matrix))
+                row = int(position % len(matrix[0]))
                 print(col)
                 print(row)
                 wordLen = variables[curVar]
@@ -116,7 +120,8 @@ class Backtracking(Algorithm):
             else:
                 # only 1 value left so when we cross it no value will remain, os backtrack again
                 curDomains[curVar] = copy.deepcopy(words)
-                moves_list.append([curVar, 'none'])
+                moves_list.append([curVar, None])
+                level -= 1
                 backwardsFlag = True
         self.backtracking(matrix, curDomains, keys, level, variables, backwardsFlag, words, moves_list)
 
