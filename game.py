@@ -82,9 +82,9 @@ class Game:
         self.info_subsurface = self.screen.subsurface((0, 0, config.WIDTH, config.SUBSURFACE_HEIGHT))
         self.sidebar_subsurface = self.screen.subsurface((config.WIDTH, 0, config.SIDE_WIDTH, config.HEIGHT))
         self.tiles = Game.load_schema(sys.argv[1] if len(sys.argv) > 1 else
-                                      os.path.join(config.SCHEMA_FOLDER, 'schema0.txt'))
+                                      os.path.join(config.SCHEMA_FOLDER, 'schema1.txt'))
         self.words = Game.load_words(sys.argv[2] if len(sys.argv) > 2 else
-                                     os.path.join(config.WORDS_FOLDER, 'words0.txt'))
+                                     os.path.join(config.WORDS_FOLDER, 'words1.txt'))
         self.variables = Game.get_variables(self.tiles)
         self.offset_x = (config.WIDTH -
                          (len(self.tiles[0]) * config.TILE_SIZE + (len(self.tiles[0]) - 1) * config.HALF_PADDING)) // 2

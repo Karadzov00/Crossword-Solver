@@ -35,6 +35,7 @@ class Backtracking(Algorithm):
         # matrix[0][1] = 'c'
         # print(matrix)
         currentDomains = {}
+        print(variables)
 
         self.initialize(tiles, variables, words, matrix, currentDomains)
 
@@ -89,6 +90,9 @@ class Backtracking(Algorithm):
             else:
                 curDomains[curVar] = copy.deepcopy(words)
                 moves_list.append([curVar, None])
+                print(matrix)
+                print(moves_list)
+
                 backwardsFlag = True
                 level -= 1
         else:
@@ -121,6 +125,9 @@ class Backtracking(Algorithm):
                 # only 1 value left so when we cross it no value will remain, os backtrack again
                 curDomains[curVar] = copy.deepcopy(words)
                 moves_list.append([curVar, None])
+                print(matrix)
+                print(moves_list)
+
                 level -= 1
                 backwardsFlag = True
         self.backtracking(matrix, curDomains, keys, level, variables, backwardsFlag, words, moves_list)
@@ -137,8 +144,8 @@ class Backtracking(Algorithm):
             else:
                 i = i + 1
 
-        startPosition = int(curVar[0])
-        direction = curVar[1]
+        direction = curVar[len(curVar) - 1]
+        startPosition = int(curVar[:-1])
         curRow = int(startPosition / len(matrix[0]))
         curCol = int(startPosition % len(matrix[0]))
 
