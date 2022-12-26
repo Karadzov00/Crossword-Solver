@@ -25,7 +25,6 @@ class Backtracking(Algorithm):
     def get_algorithm_steps(self, tiles, variables, words):
         moves_list = []
 
-
         rows = len(tiles)
         cols = len(tiles[0])
 
@@ -35,16 +34,17 @@ class Backtracking(Algorithm):
         # matrix[0][1] = 'c'
         # print(matrix)
         currentDomains = {}
+        varsNow = {}
         print(variables)
 
-        self.initialize(tiles, variables, words, matrix, currentDomains)
+        self.initialize(tiles, variables, words, matrix, currentDomains, varsNow)
 
         keys = list(variables.keys())
         variables_copy = copy.deepcopy(variables)
 
         backwardsFlag = False
 
-        self.backtracking(matrix, currentDomains, keys, 0, variables_copy, backwardsFlag, words, moves_list)
+        self.backtracking(matrix, currentDomains, keys, 0, variables_copy, backwardsFlag, words, moves_list, varsNow)
 
         domains = {var: [word for word in words] for var in variables}
         solution = []
@@ -53,13 +53,14 @@ class Backtracking(Algorithm):
             solution.append([move[0], move[1], domains])
         return solution
 
-    def backtracking(self, matrix, curDomains, keys, level, variables, backwardsFlag, words, moves_list):
+    def backtracking(self, matrix, curDomains, keys, level, variables, backwardsFlag, words, moves_list, varsNow):
         if level == len(keys):
             return True
         curVar = keys[level]
         print(curDomains)
         if not backwardsFlag:
             curDomains[curVar] = copy.deepcopy(words)
+            self.removeFromMatrix(curVar, curDomains, matrix, keys, level, variables, varsNow)
             self.reduceDomains(curVar, curDomains, matrix, keys, level, variables)
             if len(curDomains[curVar]) > 0:
                 word = curDomains[curVar][0]
@@ -81,6 +82,7 @@ class Backtracking(Algorithm):
                     for i in range(wordLen):
                         matrix[row + i][col] = word[i]
                 print(matrix)
+                varsNow[curVar] = word
                 ind = words.index(word)
                 moves_list.append([curVar, ind])
                 print(moves_list)
@@ -92,7 +94,7 @@ class Backtracking(Algorithm):
                 moves_list.append([curVar, None])
                 print(matrix)
                 print(moves_list)
-
+                varsNow[curVar] = None
                 backwardsFlag = True
                 level -= 1
         else:
@@ -112,10 +114,13 @@ class Backtracking(Algorithm):
                 if direction == 'h':
                     for i in range(wordLen):
                         matrix[row][col + i] = word[i]
+                        # col+=1
                 elif direction == 'v':
                     for i in range(wordLen):
                         matrix[row + i][col] = word[i]
+                        # row+=1
                 print(matrix)
+                varsNow[curVar] = word
                 ind = words.index(word)
                 moves_list.append([curVar, ind])
                 print(moves_list)
@@ -127,7 +132,7 @@ class Backtracking(Algorithm):
                 moves_list.append([curVar, None])
                 print(matrix)
                 print(moves_list)
-
+                varsNow[curVar] = None
                 level -= 1
                 backwardsFlag = True
         self.backtracking(matrix, curDomains, keys, level, variables, backwardsFlag, words, moves_list)
@@ -182,11 +187,39 @@ class Backtracking(Algorithm):
                 curCol += 1
                 # curRow stays the same
 
-    def initialize(self, tiles, variables, words, matrix, currentDomains):
+    def initialize(self, tiles, variables, words, matrix, currentDomains, varsNow):
 
         print(matrix)
 
         for var in variables:
             currentDomains[var] = copy.deepcopy(words)
+            varsNow[var] = None
 
         print(currentDomains)
+
+    def removeFromMatrix(self, curVar, currentDomains, matrix, keys, level, variables, varsNow):
+        for i in range(len(matrix)):
+            for j in range(len(matrix)):
+                matrix[i][j] = 0
+
+        for var in variables:
+            if varsNow[var] is not None:
+                word = varsNow[var]
+                direction = var[len(var) - 1]
+                print(direction)
+                position = int(var[:-1])
+                print(position)
+                numCols = len(matrix[0])
+                row = int(position / len(matrix[0]))
+                col = int(position % len(matrix[0]))
+                print("col in removeFromMatrix:" + col)
+                print("row in removeFromMatrix:" + row)
+                wordLen = variables[var]
+                print(wordLen)
+                if direction == 'h':
+                    for i in range(wordLen):
+                        matrix[row][col + i] = word[i]
+                elif direction == 'v':
+                    for i in range(wordLen):
+                        matrix[row + i][col] = word[i]
+                print(matrix)
