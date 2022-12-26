@@ -135,7 +135,7 @@ class Backtracking(Algorithm):
                 varsNow[curVar] = None
                 level -= 1
                 backwardsFlag = True
-        self.backtracking(matrix, curDomains, keys, level, variables, backwardsFlag, words, moves_list)
+        self.backtracking(matrix, curDomains, keys, level, variables, backwardsFlag, words, moves_list, varsNow)
 
     def reduceDomains(self, curVar, currentDomains, matrix, keys, level, variables):
         n = len(currentDomains[curVar])
@@ -199,7 +199,7 @@ class Backtracking(Algorithm):
 
     def removeFromMatrix(self, curVar, currentDomains, matrix, keys, level, variables, varsNow):
         for i in range(len(matrix)):
-            for j in range(len(matrix)):
+            for j in range(len(matrix[0])):
                 matrix[i][j] = 0
 
         for var in variables:
@@ -212,8 +212,8 @@ class Backtracking(Algorithm):
                 numCols = len(matrix[0])
                 row = int(position / len(matrix[0]))
                 col = int(position % len(matrix[0]))
-                print("col in removeFromMatrix:" + col)
-                print("row in removeFromMatrix:" + row)
+                print(col)
+                print(row)
                 wordLen = variables[var]
                 print(wordLen)
                 if direction == 'h':
