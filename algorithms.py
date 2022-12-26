@@ -103,8 +103,8 @@ class Backtracking(Algorithm):
                 print(direction)
                 position = int(curVar[:-1])
                 print(position)
-                col = int(position / len(matrix[0]))
-                row = int(position % len(matrix[0]))
+                row = int(position / len(matrix[0]))
+                col = int(position % len(matrix[0]))
                 print(col)
                 print(row)
                 wordLen = variables[curVar]
