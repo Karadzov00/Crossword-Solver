@@ -487,10 +487,39 @@ class Backtracking(Algorithm):
     def arcConsistency(self, matrix, curDomains, keys, level, variables, backwardsFlag, words, moves_list, varsNow,
                        graph, changedList):
         while len(changedList) > 0:
-            variable = changedList.pop()
-            neighbors = graph[variable]
-            print("arcConsistency")
-            print()
-            print()
-            print(variable)
+            print("\n arcConsistency \n \n")
+            node = changedList.pop()
+            print(node)
+            neighbors = graph[node]
+            print("neighbors")
             print(neighbors)
+            print("branches")
+            for firstVar in graph[node]:
+                if varsNow[firstVar] is None:
+                    print(firstVar + "-" + node)
+                    # for word in curDomains[firstVar]:
+                    #     self.writeWordInMatrix(firstVar, matrix, variables, word)
+                    #     print("\n Matrix after writing word from firstVar domain \n")
+                    #     print(matrix)
+                    #     self.removeFromMatrix()
+
+
+    def writeWordInMatrix(self, curVar, matrix, variables, word ):
+        direction = curVar[len(curVar) - 1]
+        position = int(curVar[:-1])
+        print(position)
+        numCols = len(matrix[0])
+        row = int(position / numCols)
+        col = int(position % numCols)
+        print(col)
+        print(row)
+        wordLen = variables[curVar]
+        print(wordLen)
+        if direction == 'h':
+            for i in range(wordLen):
+                matrix[row][col] = word[i]
+                col += 1
+        elif direction == 'v':
+            for i in range(wordLen):
+                matrix[row][col] = word[i]
+                row += 1
