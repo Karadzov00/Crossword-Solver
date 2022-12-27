@@ -104,6 +104,7 @@ class Backtracking(Algorithm):
                 backwardsFlag = True
                 level -= 1
         else:
+            # TODO def nextVariable()
             if len(curDomains[curVar]) > 1:
                 curDomains[curVar].pop(0)
                 word = curDomains[curVar][0]
@@ -134,7 +135,8 @@ class Backtracking(Algorithm):
                 level += 1
                 backwardsFlag = False
             else:
-                # only 1 value left so when we cross it no value will remain, os backtrack again
+                # TODO def prevVariable()
+                # only 1 value left so when we cross it no value will remain, so backtrack again
                 curDomains[curVar] = copy.deepcopy(words)
                 moves_list.append([curVar, None])
                 print(matrix)
@@ -235,6 +237,7 @@ class Backtracking(Algorithm):
         if level == len(keys):
             return True
         curVar = keys[level]
+        changedList = set()
         print(curDomains)
         if not backwardsFlag:
             curDomains[curVar] = copy.deepcopy(words)
@@ -271,19 +274,25 @@ class Backtracking(Algorithm):
                 # forward check
                 for neighbor in graph[curVar]:
                     self.removeFromMatrix(curVar, curDomains, matrix, keys, level, variables, varsNow)
-                    self.reduceDomains(neighbor, curDomains, matrix, keys, level, variables)
+                    self.reduceDomainsFC(neighbor, curDomains, matrix, keys, level, variables, changedList)
                     if len(curDomains[neighbor]) == 0:
                         print("Cur Domains after forward check")
                         print(curDomains)
                         backwardsFlag = True
                         fc_backtrack = True
-                        #refresh the domain of neighbor
+                        # refresh the domain of neighbor
                         curDomains[neighbor] = copy.deepcopy(words)
                         varsNow[neighbor] = None
                         # level stays the same
                         break
                 print("Cur Domains after forward check")
                 print(curDomains)
+                print("Changed List after fc:")
+                print(changedList)
+
+                self.arcConsistency(matrix, curDomains, keys, level, variables, backwardsFlag, words, moves_list,
+                                    varsNow, graph, changedList)
+
                 if not fc_backtrack:
                     level += 1
                     backwardsFlag = False
@@ -327,7 +336,7 @@ class Backtracking(Algorithm):
                 # forward check
                 for neighbor in graph[curVar]:
                     self.removeFromMatrix(curVar, curDomains, matrix, keys, level, variables, varsNow)
-                    self.reduceDomains(neighbor, curDomains, matrix, keys, level, variables)
+                    self.reduceDomainsFC(neighbor, curDomains, matrix, keys, level, variables, changedList)
                     if len(curDomains[neighbor]) == 0:
                         print("Cur Domains after forward check")
                         print(curDomains)
@@ -339,11 +348,17 @@ class Backtracking(Algorithm):
                         break
                 print("Cur Domains after forward check")
                 print(curDomains)
+                print("Changed List after fc:")
+                print(changedList)
+
+                self.arcConsistency(matrix, curDomains, keys, level, variables, backwardsFlag, words, moves_list,
+                                    varsNow, graph, changedList)
+
                 if not fc_backtrack:
                     level += 1
                     backwardsFlag = False
             else:
-                # only 1 value left so when we cross it no value will remain, os backtrack again
+                # only 1 value left so when we cross it no value will remain, so backtrack again
                 curDomains[curVar] = copy.deepcopy(words)
                 moves_list.append([curVar, None])
                 print(matrix)
@@ -416,3 +431,66 @@ class Backtracking(Algorithm):
                         graph[var].append(fullVar)
                     row += 1
         print(graph)
+
+    def reduceDomainsFC(self, curVar, currentDomains, matrix, keys, level, variables, changedList):
+        n = len(currentDomains[curVar])
+        i = 0
+
+        # cut domains for words with different length
+        while i < n:
+            if len(currentDomains[curVar][i]) != variables[curVar]:
+                currentDomains[curVar].pop(i)
+                n = n - 1
+                changedList.add(curVar)
+            else:
+                i = i + 1
+
+        direction = curVar[len(curVar) - 1]
+        startPosition = int(curVar[:-1])
+        curRow = int(startPosition / len(matrix[0]))
+        curCol = int(startPosition % len(matrix[0]))
+
+        # cut domains for words that doesn't match letters in matrix
+        # variables[curVar] is the length of the current variable
+        for j in range(variables[curVar]):
+            length = len(currentDomains[curVar])  # length of current var domain array
+            k = 0
+
+            if direction == 'v':
+                # iterate through all words in hashmap for that var
+                while k < length:
+                    # here are only words of equal length
+                    if matrix[curRow][curCol] != 0 and matrix[curRow][curCol] != currentDomains[curVar][k][j]:
+                        currentDomains[curVar].pop(k)
+                        length -= 1
+                        # go to next field
+                    else:
+                        k += 1
+
+                curRow += 1
+                # curCol stays the same
+
+            elif direction == 'h':
+                while k < length:
+                    # here are only words of equal length
+                    if matrix[curRow][curCol] != 0 and matrix[curRow][curCol] != currentDomains[curVar][k][j]:
+                        currentDomains[curVar].pop(k)
+                        length -= 1
+                        # go to next field
+                        changedList.add(curVar)
+                    else:
+                        k += 1
+
+                curCol += 1
+                # curRow stays the same
+
+    def arcConsistency(self, matrix, curDomains, keys, level, variables, backwardsFlag, words, moves_list, varsNow,
+                       graph, changedList):
+        while len(changedList) > 0:
+            variable = changedList.pop()
+            neighbors = graph[variable]
+            print("arcConsistency")
+            print()
+            print()
+            print(variable)
+            print(neighbors)
