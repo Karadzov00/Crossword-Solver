@@ -259,7 +259,7 @@ class Backtracking(Algorithm):
                     # reset rows
                     row = int(position / numCols)
                     while True:
-                        if row == 0 or tiles[row][col] is True:
+                        if row == 0 or tiles[row-1][col] is True:
                             break
                         else:
                             row -= 1
@@ -272,4 +272,22 @@ class Backtracking(Algorithm):
                         fullVar = str(number) + 'v'
                         graph[var].append(fullVar)
                     col += 1
+            elif direction == 'v':
+                for i in range(variables[var]):
+                    # reset cols
+                    col = int(position % numCols)
+                    while True:
+                        if col == 0 or tiles[row][col-1] is True:
+                            break
+                        else:
+                            col -= 1
+
+                    # calculate number from col and row
+                    number = len(tiles[0]) * row + col
+                    cnt = horizontalList.count(number)
+                    # add variable to graph as a neighbor of current variable
+                    if cnt > 0:
+                        fullVar = str(number) + 'h'
+                        graph[var].append(fullVar)
+                    row += 1
         print(graph)
