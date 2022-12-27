@@ -44,7 +44,8 @@ class Backtracking(Algorithm):
 
         backwardsFlag = False
 
-        self.backtracking(matrix, currentDomains, keys, 0, variables_copy, backwardsFlag, words, moves_list, varsNow)
+        # self.backtracking(matrix, currentDomains, keys, 0, variables_copy, backwardsFlag, words, moves_list, varsNow)
+        self.formGraph(tiles, variables, words)
 
         domains = {var: [word for word in words] for var in variables}
         solution = []
@@ -69,18 +70,20 @@ class Backtracking(Algorithm):
                 position = int(curVar[:-1])
                 print(position)
                 numCols = len(matrix[0])
-                row = int(position / len(matrix[0]))
-                col = int(position % len(matrix[0]))
+                row = int(position / numCols)
+                col = int(position % numCols)
                 print(col)
                 print(row)
                 wordLen = variables[curVar]
                 print(wordLen)
                 if direction == 'h':
                     for i in range(wordLen):
-                        matrix[row][col + i] = word[i]
+                        matrix[row][col] = word[i]
+                        col += 1
                 elif direction == 'v':
                     for i in range(wordLen):
-                        matrix[row + i][col] = word[i]
+                        matrix[row][col] = word[i]
+                        row += 1
                 print(matrix)
                 varsNow[curVar] = word
                 ind = words.index(word)
@@ -105,20 +108,21 @@ class Backtracking(Algorithm):
                 print(direction)
                 position = int(curVar[:-1])
                 print(position)
-                row = int(position / len(matrix[0]))
-                col = int(position % len(matrix[0]))
+                numCols = len(matrix[0])
+                row = int(position / numCols)
+                col = int(position % numCols)
                 print(col)
                 print(row)
                 wordLen = variables[curVar]
                 print(wordLen)
                 if direction == 'h':
                     for i in range(wordLen):
-                        matrix[row][col + i] = word[i]
-                        # col+=1
+                        matrix[row][col] = word[i]
+                        col += 1
                 elif direction == 'v':
                     for i in range(wordLen):
-                        matrix[row + i][col] = word[i]
-                        # row+=1
+                        matrix[row][col] = word[i]
+                        row += 1
                 print(matrix)
                 varsNow[curVar] = word
                 ind = words.index(word)
@@ -206,20 +210,66 @@ class Backtracking(Algorithm):
             if varsNow[var] is not None:
                 word = varsNow[var]
                 direction = var[len(var) - 1]
-                print(direction)
                 position = int(var[:-1])
-                print(position)
                 numCols = len(matrix[0])
-                row = int(position / len(matrix[0]))
-                col = int(position % len(matrix[0]))
-                print(col)
-                print(row)
+                row = int(position / numCols)
+                col = int(position % numCols)
+
                 wordLen = variables[var]
                 print(wordLen)
                 if direction == 'h':
                     for i in range(wordLen):
-                        matrix[row][col + i] = word[i]
+                        matrix[row][col] = word[i]
+                        col += 1
                 elif direction == 'v':
                     for i in range(wordLen):
-                        matrix[row + i][col] = word[i]
+                        matrix[row][col] = word[i]
+                        row += 1
                 print(matrix)
+
+    # def forwardChecking(self, matrix, curDomains, keys, level, variables, backwardsFlag, words, moves_list, varsNow):
+
+    def formGraph(self, tiles, variables, words):
+        variableList = list(variables.keys())
+        verticalList = []
+        horizontalList = []
+        graph = {}
+        for var in variableList:
+            graph[var] = []
+            direction = var[len(var) - 1]
+            position = int(var[:-1])
+            if direction == 'h':
+                horizontalList.append(position)
+            elif direction == 'v':
+                verticalList.append(position)
+
+        print(horizontalList)
+        print(verticalList)
+        print(tiles)
+        print(graph)
+
+        for var in variableList:
+            direction = var[len(var) - 1]
+            position = int(var[:-1])
+            numCols = len(tiles[0])
+            row = int(position / numCols)
+            col = int(position % numCols)
+            if direction == 'h':
+                for i in range(variables[var]):
+                    # reset rows
+                    row = int(position / numCols)
+                    while True:
+                        if row == 0 or tiles[row][col] is True:
+                            break
+                        else:
+                            row -= 1
+
+                    # calculate number from col and row
+                    number = len(tiles[0]) * row + col
+                    cnt = verticalList.count(number)
+                    # add variable to graph as a neighbor of current variable
+                    if cnt > 0:
+                        fullVar = str(number) + 'v'
+                        graph[var].append(fullVar)
+                    col += 1
+        print(graph)
