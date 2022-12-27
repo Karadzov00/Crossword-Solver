@@ -45,7 +45,10 @@ class Backtracking(Algorithm):
         backwardsFlag = False
 
         # self.backtracking(matrix, currentDomains, keys, 0, variables_copy, backwardsFlag, words, moves_list, varsNow)
-        self.formGraph(tiles, variables, words)
+        graph = {}
+        self.formGraph(tiles, variables, words, graph)
+        self.forwardChecking(matrix, currentDomains, keys, 0, variables_copy, backwardsFlag, words, moves_list, varsNow,
+                             graph)
 
         domains = {var: [word for word in words] for var in variables}
         solution = []
@@ -227,13 +230,135 @@ class Backtracking(Algorithm):
                         row += 1
                 print(matrix)
 
-    # def forwardChecking(self, matrix, curDomains, keys, level, variables, backwardsFlag, words, moves_list, varsNow):
+    def forwardChecking(self, matrix, curDomains, keys, level, variables, backwardsFlag, words, moves_list, varsNow,
+                        graph):
+        if level == len(keys):
+            return True
+        curVar = keys[level]
+        print(curDomains)
+        if not backwardsFlag:
+            curDomains[curVar] = copy.deepcopy(words)
+            self.removeFromMatrix(curVar, curDomains, matrix, keys, level, variables, varsNow)
+            self.reduceDomains(curVar, curDomains, matrix, keys, level, variables)
+            if len(curDomains[curVar]) > 0:
+                word = curDomains[curVar][0]
+                direction = curVar[len(curVar) - 1]
+                print(direction)
+                position = int(curVar[:-1])
+                print(position)
+                numCols = len(matrix[0])
+                row = int(position / numCols)
+                col = int(position % numCols)
+                print(col)
+                print(row)
+                wordLen = variables[curVar]
+                print(wordLen)
+                if direction == 'h':
+                    for i in range(wordLen):
+                        matrix[row][col] = word[i]
+                        col += 1
+                elif direction == 'v':
+                    for i in range(wordLen):
+                        matrix[row][col] = word[i]
+                        row += 1
+                print(matrix)
+                varsNow[curVar] = word
+                ind = words.index(word)
+                moves_list.append([curVar, ind])
+                print(moves_list)
 
-    def formGraph(self, tiles, variables, words):
+                fc_backtrack = False
+                # forward check
+                for neighbor in graph[curVar]:
+                    self.removeFromMatrix(curVar, curDomains, matrix, keys, level, variables, varsNow)
+                    self.reduceDomains(neighbor, curDomains, matrix, keys, level, variables)
+                    if len(curDomains[neighbor]) == 0:
+                        print("Cur Domains after forward check")
+                        print(curDomains)
+                        backwardsFlag = True
+                        fc_backtrack = True
+                        #refresh the domain of neighbor
+                        curDomains[neighbor] = copy.deepcopy(words)
+                        varsNow[neighbor] = None
+                        # level stays the same
+                        break
+                print("Cur Domains after forward check")
+                print(curDomains)
+                if not fc_backtrack:
+                    level += 1
+                    backwardsFlag = False
+
+            else:
+                curDomains[curVar] = copy.deepcopy(words)
+                moves_list.append([curVar, None])
+                print(matrix)
+                print(moves_list)
+                varsNow[curVar] = None
+                backwardsFlag = True
+                level -= 1
+        else:
+            if len(curDomains[curVar]) > 1:
+                curDomains[curVar].pop(0)
+                word = curDomains[curVar][0]
+                direction = curVar[len(curVar) - 1]
+                print(direction)
+                position = int(curVar[:-1])
+                print(position)
+                numCols = len(matrix[0])
+                row = int(position / numCols)
+                col = int(position % numCols)
+                print(col)
+                print(row)
+                wordLen = variables[curVar]
+                print(wordLen)
+                if direction == 'h':
+                    for i in range(wordLen):
+                        matrix[row][col] = word[i]
+                        col += 1
+                elif direction == 'v':
+                    for i in range(wordLen):
+                        matrix[row][col] = word[i]
+                        row += 1
+                print(matrix)
+                varsNow[curVar] = word
+                ind = words.index(word)
+                moves_list.append([curVar, ind])
+                fc_backtrack = False
+                # forward check
+                for neighbor in graph[curVar]:
+                    self.removeFromMatrix(curVar, curDomains, matrix, keys, level, variables, varsNow)
+                    self.reduceDomains(neighbor, curDomains, matrix, keys, level, variables)
+                    if len(curDomains[neighbor]) == 0:
+                        print("Cur Domains after forward check")
+                        print(curDomains)
+                        backwardsFlag = True
+                        fc_backtrack = True
+                        curDomains[neighbor] = copy.deepcopy(words)
+                        varsNow[neighbor] = None
+                        # level stays the same
+                        break
+                print("Cur Domains after forward check")
+                print(curDomains)
+                if not fc_backtrack:
+                    level += 1
+                    backwardsFlag = False
+            else:
+                # only 1 value left so when we cross it no value will remain, os backtrack again
+                curDomains[curVar] = copy.deepcopy(words)
+                moves_list.append([curVar, None])
+                print(matrix)
+                print(moves_list)
+                varsNow[curVar] = None
+                level -= 1
+                backwardsFlag = True
+        self.forwardChecking(matrix, curDomains, keys, level, variables, backwardsFlag, words, moves_list, varsNow,
+                             graph)
+
+    def formGraph(self, tiles, variables, words, graph):
         variableList = list(variables.keys())
         verticalList = []
         horizontalList = []
-        graph = {}
+
         for var in variableList:
             graph[var] = []
             direction = var[len(var) - 1]
@@ -259,7 +384,7 @@ class Backtracking(Algorithm):
                     # reset rows
                     row = int(position / numCols)
                     while True:
-                        if row == 0 or tiles[row-1][col] is True:
+                        if row == 0 or tiles[row - 1][col] is True:
                             break
                         else:
                             row -= 1
@@ -277,7 +402,7 @@ class Backtracking(Algorithm):
                     # reset cols
                     col = int(position % numCols)
                     while True:
-                        if col == 0 or tiles[row][col-1] is True:
+                        if col == 0 or tiles[row][col - 1] is True:
                             break
                         else:
                             col -= 1
