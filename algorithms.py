@@ -487,8 +487,11 @@ class Backtracking(Algorithm):
     def arcConsistency(self, matrix, curDomains, keys, level, variables, backwardsFlag, words, moves_list, varsNow,
                        graph, changedList):
         while len(changedList) > 0:
+            if backwardsFlag:
+                break
             print("\n arcConsistency \n \n")
             node = changedList.pop()
+
             print(node)
             neighbors = graph[node]
             print("neighbors")
@@ -516,13 +519,19 @@ class Backtracking(Algorithm):
                             print("domains of firstVar before deletion")
                             print(curDomains[firstVar])
                             curDomains[firstVar].pop(k)
-                            changedList.add(firstVar)
+                            # changedList.add(firstVar)
                             length -= 1
                             print("domains of firstVar after deletion")
                             print(curDomains[firstVar])
                             if len(curDomains[firstVar])==0:
+                                print("Cur Domains after forward check")
+                                print(curDomains)
+                                backwardsFlag = True
+                                fc_backtrack = True
+                                curDomains[firstVar] = copy.deepcopy(words)
+                                varsNow[firstVar] = None
+                                break
 
-                            # remove from firstVar domains
                         else:
                             k += 1
 
@@ -530,23 +539,6 @@ class Backtracking(Algorithm):
                         print(" matrix after removing ")
                         print(matrix)
 
-                        # length = len(currentDomains[curVar])  # length of current var domain array
-                        # k = 0
-                        #
-                        # if direction == 'v':
-                        #     # iterate through all words in hashmap for that var
-                        #     while k < length:
-                        #         # here are only words of equal length
-                        #         if matrix[curRow][curCol] != 0 and matrix[curRow][curCol] != currentDomains[curVar][k][
-                        #             j]:
-                        #             currentDomains[curVar].pop(k)
-                        #             length -= 1
-                        #             # go to next field
-                        #         else:
-                        #             k += 1
-                        #
-                        #     curRow += 1
-                        #     # curCol stays the same
 
     def writeWordInMatrix(self, curVar, matrix, variables, word):
         direction = curVar[len(curVar) - 1]
