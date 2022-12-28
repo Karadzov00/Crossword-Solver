@@ -64,7 +64,7 @@ class Backtracking(Algorithm):
         print(curDomains)
         if not backwardsFlag:
             curDomains[curVar] = copy.deepcopy(words)
-            self.removeFromMatrix(curVar, curDomains, matrix, keys, level, variables, varsNow)
+            self.removeFromMatrix(matrix, variables, varsNow)
             self.reduceDomains(curVar, curDomains, matrix, keys, level, variables)
             if len(curDomains[curVar]) > 0:
                 word = curDomains[curVar][0]
@@ -206,7 +206,7 @@ class Backtracking(Algorithm):
 
         print(currentDomains)
 
-    def removeFromMatrix(self, curVar, currentDomains, matrix, keys, level, variables, varsNow):
+    def removeFromMatrix(self, matrix, variables, varsNow):
         for i in range(len(matrix)):
             for j in range(len(matrix[0])):
                 matrix[i][j] = 0
@@ -241,7 +241,7 @@ class Backtracking(Algorithm):
         print(curDomains)
         if not backwardsFlag:
             curDomains[curVar] = copy.deepcopy(words)
-            self.removeFromMatrix(curVar, curDomains, matrix, keys, level, variables, varsNow)
+            self.removeFromMatrix(matrix, variables, varsNow)
             self.reduceDomains(curVar, curDomains, matrix, keys, level, variables)
             if len(curDomains[curVar]) > 0:
                 word = curDomains[curVar][0]
@@ -273,7 +273,7 @@ class Backtracking(Algorithm):
                 fc_backtrack = False
                 # forward check
                 for neighbor in graph[curVar]:
-                    self.removeFromMatrix(curVar, curDomains, matrix, keys, level, variables, varsNow)
+                    self.removeFromMatrix(matrix, variables, varsNow)
                     self.reduceDomainsFC(neighbor, curDomains, matrix, keys, level, variables, changedList)
                     if len(curDomains[neighbor]) == 0:
                         print("Cur Domains after forward check")
@@ -335,7 +335,7 @@ class Backtracking(Algorithm):
                 fc_backtrack = False
                 # forward check
                 for neighbor in graph[curVar]:
-                    self.removeFromMatrix(curVar, curDomains, matrix, keys, level, variables, varsNow)
+                    self.removeFromMatrix(matrix, variables, varsNow)
                     self.reduceDomainsFC(neighbor, curDomains, matrix, keys, level, variables, changedList)
                     if len(curDomains[neighbor]) == 0:
                         print("Cur Domains after forward check")
@@ -497,14 +497,58 @@ class Backtracking(Algorithm):
             for firstVar in graph[node]:
                 if varsNow[firstVar] is None:
                     print(firstVar + "-" + node)
-                    # for word in curDomains[firstVar]:
-                    #     self.writeWordInMatrix(firstVar, matrix, variables, word)
-                    #     print("\n Matrix after writing word from firstVar domain \n")
-                    #     print(matrix)
-                    #     self.removeFromMatrix()
+                    self.reduceDomains(firstVar, curDomains, matrix, keys, level, variables)
 
+                    length = len(curDomains[firstVar])
+                    k = 0
+                    while k < length:
+                        word = curDomains[firstVar][k]
+                        self.writeWordInMatrix(firstVar, matrix, variables, word)
+                        print("word is " + word)
+                        print("\n Matrix after writing word from firstVar domain \n")
+                        print(matrix)
+                        print("\n")
+                        tempDomains = copy.deepcopy(curDomains)
+                        self.reduceDomains(node, tempDomains, matrix, keys, level, variables)
+                        print("domains of node")
+                        print(tempDomains[node])
+                        if len(tempDomains[node]) == 0:
+                            print("domains of firstVar before deletion")
+                            print(curDomains[firstVar])
+                            curDomains[firstVar].pop(k)
+                            changedList.add(firstVar)
+                            length -= 1
+                            print("domains of firstVar after deletion")
+                            print(curDomains[firstVar])
+                            if len(curDomains[firstVar])==0:
 
-    def writeWordInMatrix(self, curVar, matrix, variables, word ):
+                            # remove from firstVar domains
+                        else:
+                            k += 1
+
+                        self.removeFromMatrix(matrix, variables, varsNow)
+                        print(" matrix after removing ")
+                        print(matrix)
+
+                        # length = len(currentDomains[curVar])  # length of current var domain array
+                        # k = 0
+                        #
+                        # if direction == 'v':
+                        #     # iterate through all words in hashmap for that var
+                        #     while k < length:
+                        #         # here are only words of equal length
+                        #         if matrix[curRow][curCol] != 0 and matrix[curRow][curCol] != currentDomains[curVar][k][
+                        #             j]:
+                        #             currentDomains[curVar].pop(k)
+                        #             length -= 1
+                        #             # go to next field
+                        #         else:
+                        #             k += 1
+                        #
+                        #     curRow += 1
+                        #     # curCol stays the same
+
+    def writeWordInMatrix(self, curVar, matrix, variables, word):
         direction = curVar[len(curVar) - 1]
         position = int(curVar[:-1])
         print(position)
