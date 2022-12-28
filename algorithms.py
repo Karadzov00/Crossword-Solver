@@ -57,6 +57,8 @@ class Backtracking(Algorithm):
             solution.append([move[0], move[1], domains])
         return solution
 
+
+
     def backtracking(self, matrix, curDomains, keys, level, variables, backwardsFlag, words, moves_list, varsNow):
         if level == len(keys):
             return True
@@ -68,25 +70,8 @@ class Backtracking(Algorithm):
             self.reduceDomains(curVar, curDomains, matrix, keys, level, variables)
             if len(curDomains[curVar]) > 0:
                 word = curDomains[curVar][0]
-                direction = curVar[len(curVar) - 1]
-                print(direction)
-                position = int(curVar[:-1])
-                print(position)
-                numCols = len(matrix[0])
-                row = int(position / numCols)
-                col = int(position % numCols)
-                print(col)
-                print(row)
-                wordLen = variables[curVar]
-                print(wordLen)
-                if direction == 'h':
-                    for i in range(wordLen):
-                        matrix[row][col] = word[i]
-                        col += 1
-                elif direction == 'v':
-                    for i in range(wordLen):
-                        matrix[row][col] = word[i]
-                        row += 1
+                self.writeWordInMatrix(curVar, matrix, variables, word)
+
                 print(matrix)
                 varsNow[curVar] = word
                 ind = words.index(word)
@@ -96,37 +81,15 @@ class Backtracking(Algorithm):
                 backwardsFlag = False
 
             else:
-                curDomains[curVar] = copy.deepcopy(words)
-                moves_list.append([curVar, None])
-                print(matrix)
-                print(moves_list)
-                varsNow[curVar] = None
+                self.goBackwards(curDomains, curVar, varsNow, matrix, moves_list, words)
                 backwardsFlag = True
                 level -= 1
         else:
-            # TODO def nextVariable()
             if len(curDomains[curVar]) > 1:
                 curDomains[curVar].pop(0)
                 word = curDomains[curVar][0]
-                direction = curVar[len(curVar) - 1]
-                print(direction)
-                position = int(curVar[:-1])
-                print(position)
-                numCols = len(matrix[0])
-                row = int(position / numCols)
-                col = int(position % numCols)
-                print(col)
-                print(row)
-                wordLen = variables[curVar]
-                print(wordLen)
-                if direction == 'h':
-                    for i in range(wordLen):
-                        matrix[row][col] = word[i]
-                        col += 1
-                elif direction == 'v':
-                    for i in range(wordLen):
-                        matrix[row][col] = word[i]
-                        row += 1
+                self.writeWordInMatrix(curVar, matrix, variables, word)
+
                 print(matrix)
                 varsNow[curVar] = word
                 ind = words.index(word)
@@ -135,16 +98,19 @@ class Backtracking(Algorithm):
                 level += 1
                 backwardsFlag = False
             else:
-                # TODO def prevVariable()
                 # only 1 value left so when we cross it no value will remain, so backtrack again
-                curDomains[curVar] = copy.deepcopy(words)
-                moves_list.append([curVar, None])
-                print(matrix)
-                print(moves_list)
-                varsNow[curVar] = None
+                self.goBackwards(curDomains, curVar, varsNow, matrix, moves_list, words)
                 level -= 1
                 backwardsFlag = True
         self.backtracking(matrix, curDomains, keys, level, variables, backwardsFlag, words, moves_list, varsNow)
+
+
+    def goBackwards(self, curDomains, curVar, varsNow, matrix, moves_list, words):
+        curDomains[curVar] = copy.deepcopy(words)
+        moves_list.append([curVar, None])
+        print(matrix)
+        print(moves_list)
+        varsNow[curVar] = None
 
     def reduceDomains(self, curVar, currentDomains, matrix, keys, level, variables):
         n = len(currentDomains[curVar])
@@ -245,25 +211,8 @@ class Backtracking(Algorithm):
             self.reduceDomains(curVar, curDomains, matrix, keys, level, variables)
             if len(curDomains[curVar]) > 0:
                 word = curDomains[curVar][0]
-                direction = curVar[len(curVar) - 1]
-                print(direction)
-                position = int(curVar[:-1])
-                print(position)
-                numCols = len(matrix[0])
-                row = int(position / numCols)
-                col = int(position % numCols)
-                print(col)
-                print(row)
-                wordLen = variables[curVar]
-                print(wordLen)
-                if direction == 'h':
-                    for i in range(wordLen):
-                        matrix[row][col] = word[i]
-                        col += 1
-                elif direction == 'v':
-                    for i in range(wordLen):
-                        matrix[row][col] = word[i]
-                        row += 1
+                self.writeWordInMatrix(curVar, matrix, variables, word)
+
                 print(matrix)
                 varsNow[curVar] = word
                 ind = words.index(word)
@@ -291,43 +240,23 @@ class Backtracking(Algorithm):
                 print(changedList)
 
                 self.arcConsistency(matrix, curDomains, keys, level, variables, backwardsFlag, words, moves_list,
-                                    varsNow, graph, changedList)
+                                    varsNow, graph, changedList, fc_backtrack)
 
                 if not fc_backtrack:
                     level += 1
                     backwardsFlag = False
 
             else:
-                curDomains[curVar] = copy.deepcopy(words)
-                moves_list.append([curVar, None])
-                print(matrix)
-                print(moves_list)
-                varsNow[curVar] = None
+                self.goBackwards(curDomains, curVar, varsNow, matrix, moves_list, words)
+
                 backwardsFlag = True
                 level -= 1
         else:
             if len(curDomains[curVar]) > 1:
                 curDomains[curVar].pop(0)
                 word = curDomains[curVar][0]
-                direction = curVar[len(curVar) - 1]
-                print(direction)
-                position = int(curVar[:-1])
-                print(position)
-                numCols = len(matrix[0])
-                row = int(position / numCols)
-                col = int(position % numCols)
-                print(col)
-                print(row)
-                wordLen = variables[curVar]
-                print(wordLen)
-                if direction == 'h':
-                    for i in range(wordLen):
-                        matrix[row][col] = word[i]
-                        col += 1
-                elif direction == 'v':
-                    for i in range(wordLen):
-                        matrix[row][col] = word[i]
-                        row += 1
+                self.writeWordInMatrix(curVar, matrix, variables, word)
+
                 print(matrix)
                 varsNow[curVar] = word
                 ind = words.index(word)
@@ -352,18 +281,15 @@ class Backtracking(Algorithm):
                 print(changedList)
 
                 self.arcConsistency(matrix, curDomains, keys, level, variables, backwardsFlag, words, moves_list,
-                                    varsNow, graph, changedList)
+                                    varsNow, graph, changedList, fc_backtrack)
 
                 if not fc_backtrack:
                     level += 1
                     backwardsFlag = False
             else:
                 # only 1 value left so when we cross it no value will remain, so backtrack again
-                curDomains[curVar] = copy.deepcopy(words)
-                moves_list.append([curVar, None])
-                print(matrix)
-                print(moves_list)
-                varsNow[curVar] = None
+                self.goBackwards(curDomains, curVar, varsNow, matrix, moves_list, words)
+
                 level -= 1
                 backwardsFlag = True
         self.forwardChecking(matrix, curDomains, keys, level, variables, backwardsFlag, words, moves_list, varsNow,
@@ -485,7 +411,7 @@ class Backtracking(Algorithm):
                 # curRow stays the same
 
     def arcConsistency(self, matrix, curDomains, keys, level, variables, backwardsFlag, words, moves_list, varsNow,
-                       graph, changedList):
+                       graph, changedList, fc_backtrack):
         while len(changedList) > 0:
             if backwardsFlag:
                 break
@@ -519,7 +445,7 @@ class Backtracking(Algorithm):
                             print("domains of firstVar before deletion")
                             print(curDomains[firstVar])
                             curDomains[firstVar].pop(k)
-                            # changedList.add(firstVar)
+                            changedList.add(firstVar)
                             length -= 1
                             print("domains of firstVar after deletion")
                             print(curDomains[firstVar])
